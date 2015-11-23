@@ -13,10 +13,12 @@ node index [params]
 
 ### params
 
-param | description | default
-----------|-------------|--------
-**--source-url** | gitlab origin server url |
-**--source-key** | gitlab origin server api key |
-**--dest-url** | gitlab dest server url |
-**--dest-key** | gitlab dest server api key |
-**--local-path** | local path for repositories mirror | repositories
+param | description | environment | default
+------|-------------|-------------|--------
+**--source-url** | gitlab origin server url | GITLAB_CLONE_SOURCE_URL |
+**--source-key** | gitlab origin server api key | GITLAB_CLONE_SOURCE_KEY |
+**--dest-url** | gitlab dest server url | GITLAB_CLONE_DEST_URL |
+**--dest-key** | gitlab dest server api key | GITLAB_CLONE_DEST_KEY |
+**--local-path** | local path for repositories mirror | | repositories
+
+Source and Dest params can optionally be passed as environments variables.
