@@ -1,0 +1,28 @@
+{
+  "name": "gitlab-clone-server",
+  "version": "1.0.0",
+  "description": "node script to clone repositories from one gitlab server to another",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pdesterlich/gitlab-clone-server.git"
+  },
+  "keywords": [
+    "gitlab",
+    "clone",
+    "repositories"
+  ],
+  "author": "Phelipe de Sterlich <p.desterlich@gmail.com>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/pdesterlich/gitlab-clone-server/issues"
+  },
+  "homepage": "https://github.com/pdesterlich/gitlab-clone-server#readme",
+  "dependencies": {
+    "command-line-args": "^2.1.1",
+    "gitlab": "^1.4.1"
+  }
+}
