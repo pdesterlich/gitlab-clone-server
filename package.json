@@ -23,8 +23,10 @@
   "homepage": "https://github.com/pdesterlich/gitlab-clone-server#readme",
   "dependencies": {
     "async": "^1.5.0",
+    "chalk": "^1.1.1",
     "command-line-args": "^2.1.1",
     "gitlab": "^1.4.1",
+    "lodash": "^3.10.1",
     "mkdirp": "^0.5.1"
   }
 }
