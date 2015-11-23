@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var async = require('async');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var chalk = require('chalk');
@@ -22,7 +23,6 @@ console.log("gitlab-clone-server");
 console.log("-----");
 console.log("source: " + options['source-url']);
 console.log("dest  : " + options['dest-url']);
-console.log("-----");
 
 var source = require('gitlab')({ url: options['source-url'], token: options['source-key'] });
 var dest = require('gitlab')({ url: options['dest-url'], token: options['dest-key'] });
@@ -45,20 +45,44 @@ var cleanRepoList = function (list) {
   });
 };
 
+var processProject = function(project, callback) {
+  console.log("-----");
+  console.log((project.destExist ? chalk.blue('aggiorno') : chalk.green('creo')) + ' ' + project.path);
+  var fullPath = path.join(options['local-path'], project.group, project.name);
+  mkdirp(fullPath, function (err, made) {
+    if (made) console.log(chalk.green('creato percorso: ') + made);
+    callback();
+  });
+};
+
 source.projects.all(function (sourceList) {
   dest.projects.all(function (destList) {
     sourceList = cleanRepoList(sourceList);
     destList = cleanRepoList(destList);
 
     sourceList.forEach(function (sourceProject) {
-      var fullPath = path.join(options['local-path'], sourceProject.group, sourceProject.name);
-      mkdirp(fullPath);
-
-      if (_.find(destList, { path: sourceProject.path })) {
-        console.log(chalk.blue(sourceProject.path));
-      } else {
-        console.log(chalk.green(sourceProject.path));
-      }
+      sourceProject.destExist = (_.find(destList, { path: sourceProject.path })) ? true : false;
     });
+
+    async.eachSeries(sourceList, processProject, function (err) {
+      if (err) {
+        console.log(chalk.red('ERRORE'));
+        console.log(err);
+        process.exit(1);
+      }
+      console.log('-----');
+      process.exit(0);
+    });
+
+    // sourceList.forEach(function (sourceProject) {
+    //   var fullPath = path.join(options['local-path'], sourceProject.group, sourceProject.name);
+    //   mkdirp(fullPath);
+    //
+    //   if (sourceProject.destExist) { // if (_.find(destList, { path: sourceProject.path })) {
+    //     console.log(chalk.blue(sourceProject.path));
+    //   } else {
+    //     console.log(chalk.green(sourceProject.path));
+    //   }
+    // });
   });
 });
