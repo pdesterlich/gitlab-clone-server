@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var childProcess = require('child_process');
 var async = require('async');
 var path = require('path');
 var mkdirp = require('mkdirp');
@@ -48,9 +49,21 @@ var cleanRepoList = function (list) {
 var processProject = function(project, callback) {
   console.log("-----");
   console.log((project.destExist ? chalk.blue('aggiorno') : chalk.green('creo')) + ' ' + project.path);
-  var fullPath = path.join(options['local-path'], project.group, project.name);
+  var fullPath = path.join(__dirname, options['local-path'], project.group, project.name);
   mkdirp(fullPath, function (err, made) {
-    if (made) console.log(chalk.green('creato percorso: ') + made);
+    var isNewLocal = (made ? true : false);
+
+    command = isNewLocal ? 'git clone --mirror ' + project.url + ' .' : 'git remote update';
+    childProcess.execSync(command, { cwd: fullPath });
+
+    if (project.destExist) {
+      // il progetto esiste nel server di destinazione, mi limito ad aggiornarlo
+      command = 'git push --mirror ' + project.destUrl;
+      childProcess.execSync(command, { cwd: fullPath });
+    } else {
+      // il progetto non esiste nel server di destinazione, lo creo
+    }
+
     callback();
   });
 };
@@ -61,7 +74,9 @@ source.projects.all(function (sourceList) {
     destList = cleanRepoList(destList);
 
     sourceList.forEach(function (sourceProject) {
-      sourceProject.destExist = (_.find(destList, { path: sourceProject.path })) ? true : false;
+      var destProject = _.find(destList, { path: sourceProject.path });
+      sourceProject.destExist = (destProject) ? true : false;
+      sourceProject.destUrl = (destProject) ? destProject.url : '';
     });
 
     async.eachSeries(sourceList, processProject, function (err) {
