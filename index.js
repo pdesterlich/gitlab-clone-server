@@ -47,6 +47,7 @@ var cleanRepoList = function (list) {
 };
 
 var processProject = function(project, callback) {
+  var command = '';
   console.log("-----");
   console.log((project.destExist ? chalk.blue('aggiorno') : chalk.green('creo')) + ' ' + project.path);
   var fullPath = path.join(__dirname, options['local-path'], project.group, project.name);
@@ -62,6 +63,12 @@ var processProject = function(project, callback) {
       childProcess.execSync(command, { cwd: fullPath });
     } else {
       // il progetto non esiste nel server di destinazione, lo creo
+      //
+      // TODO
+      // se il progetto è personal (project.isPersonal === true):
+      // verifico se l'utente esiste, se non esiste aggiungo l'utente, poi aggiungo il progetto e faccio il push
+      // se il progetto è di gruppo (project.isPersonal === false):
+      // verifico se il gruppo esiste, se non esiste aggiungo il gruppo, poi aggiungo il progetto e faccio il push
     }
 
     callback();
@@ -77,6 +84,7 @@ source.projects.all(function (sourceList) {
       var destProject = _.find(destList, { path: sourceProject.path });
       sourceProject.destExist = (destProject) ? true : false;
       sourceProject.destUrl = (destProject) ? destProject.url : '';
+      sourceProject.isPersonal = (sourceProject.owner) ? true : false;
     });
 
     async.eachSeries(sourceList, processProject, function (err) {
@@ -88,16 +96,5 @@ source.projects.all(function (sourceList) {
       console.log('-----');
       process.exit(0);
     });
-
-    // sourceList.forEach(function (sourceProject) {
-    //   var fullPath = path.join(options['local-path'], sourceProject.group, sourceProject.name);
-    //   mkdirp(fullPath);
-    //
-    //   if (sourceProject.destExist) { // if (_.find(destList, { path: sourceProject.path })) {
-    //     console.log(chalk.blue(sourceProject.path));
-    //   } else {
-    //     console.log(chalk.green(sourceProject.path));
-    //   }
-    // });
   });
 });
